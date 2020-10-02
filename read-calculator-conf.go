@@ -2,6 +2,9 @@ package main
 
 import (
 	"bufio"
+	"errors"
+	"fmt"
+	"io"
 	"math"
 	"os"
 	"strconv"
@@ -27,7 +30,11 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 	// it will ignore any labels, but they should be used for clarity!
 	// skip over the plaintext header containing the labels
 	var line string
-	for line, err = reader.ReadString('\n'); err != nil && unicode.IsLetter(rune(line[0])); line, err = reader.ReadString('\n') {
+	for true {
+		line, err = reader.ReadString('\n')
+		if unicode.IsDigit(rune(line[0])) || err != nil {
+			break
+		}
 		// do nothing...
 	}
 	// check to make sure err is still nil before proceeding
@@ -39,19 +46,26 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 	var simLength int
 	var disease dynamicnet.Disease
 	var infectionStrategy dynamicnet.InitialInfectionStrategy
-	for i := 0; i < 4; i++ {
+	numTrials, err = strconv.Atoi(line)
+	fmt.Print(line)
+	for i := 0; i < 3; i++ {
 		line, err := reader.ReadString('\n')
-		if err != nil {
+		fmt.Print(line)
+		if err != nil && !errors.Is(err, io.EOF) {
 			panic(err)
 		}
+		line = line[:len(line)-1]
 		if i == 0 {
-			numTrials, err = strconv.Atoi(line)
-		} else if i == 1 {
 			simLength, err = strconv.Atoi(line)
-		} else if i == 2 {
+		} else if i == 1 {
 			disease = parseDisease(line)
-		} else if i == 3 {
+		} else if i == 2 {
 			infectionStrategy = parseInfectionStrategy(line)
+		}
+		if err != nil && !errors.Is(err, io.EOF) {
+			fmt.Printf("Problem with value %d\n", i)
+			fmt.Println(line)
+			panic(err)
 		}
 	}
 	return optimized.NewNetworkFitnessCalculator(adjacencyMatrix, numTrials, simLength, infectionStrategy, disease)
@@ -61,6 +75,7 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 func parseDisease(line string) dynamicnet.Disease {
 	fields := strings.Fields(line)
 	if len(fields) != 3 {
+		fmt.Printf("%v\n", fields)
 		panic("Expected three values for disease description!")
 	}
 	timeToI, err := strconv.Atoi(fields[0])
