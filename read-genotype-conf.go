@@ -2,8 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
-	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -22,20 +20,21 @@ func readGenotypeConf(filename string) []evolution.Float32Genotype {
 	}
 	defer file.Close()
 
-	fileReader := bufio.NewReader(file)
+	fileScanner := bufio.NewScanner(file)
 	genotypes := make([]evolution.Float32Genotype, 0)
-	for line, err := fileReader.ReadString('\n'); err != nil; line, err = fileReader.ReadString('\n') {
+
+	for ok := fileScanner.Scan(); ok; ok = fileScanner.Scan() {
+		line := fileScanner.Text()
 		if !unicode.IsDigit(rune(line[0])) {
 			continue
 		}
 		genotypes = append(genotypes, lineToGenotype(line))
 	}
-	if err != nil && !errors.Is(err, io.EOF) {
-		panic(err)
-	}
+
 	return genotypes
 }
 
+// lineToGenotype - line should be of the form NUM,NUM,NUM,NUM
 func lineToGenotype(line string) evolution.Float32Genotype {
 	numbers := strings.Split(line, ",")
 	if len(numbers) != 4 {

@@ -1,6 +1,7 @@
 package dynamicnet
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -45,8 +46,11 @@ func NewDiseasedNetwork(dis Disease, adjMat Network,
 
 // Step through one time step
 func (n *DiseasedNetwork) Step() {
+	fmt.Println("Updating connections...")
 	n.updateConnections()
+	fmt.Println("Spreading infection...")
 	n.spreadInfection()
+	fmt.Println("Updating states...")
 	n.updateStates()
 	for i := range n.timeInState {
 		n.timeInState[i]++

@@ -16,6 +16,8 @@ func main() {
 
 	fitnessCalculator := readFitnessCalculator(calculatorConfName, startingMatrixName)
 	genotypes := readGenotypeConf(genotypeConfName)
+	// fmt.Printf("Fitness Calculator: %v\n", fitnessCalculator)
+	fmt.Printf("Genotypes: %v\n", genotypes)
 
 	for i, genotype := range genotypes {
 		fitness := fitnessCalculator.CalculateFitness(genotype)

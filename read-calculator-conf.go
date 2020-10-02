@@ -46,11 +46,12 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 	var simLength int
 	var disease dynamicnet.Disease
 	var infectionStrategy dynamicnet.InitialInfectionStrategy
-	numTrials, err = strconv.Atoi(line)
-	fmt.Print(line)
+	numTrials, err = strconv.Atoi(line[:len(line)-1])
+	if err != nil {
+		panic(err)
+	}
 	for i := 0; i < 3; i++ {
 		line, err := reader.ReadString('\n')
-		fmt.Print(line)
 		if err != nil && !errors.Is(err, io.EOF) {
 			panic(err)
 		}
@@ -68,6 +69,7 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 			panic(err)
 		}
 	}
+	fmt.Printf("num trials: %d\n", numTrials)
 	return optimized.NewNetworkFitnessCalculator(adjacencyMatrix, numTrials, simLength, infectionStrategy, disease)
 }
 

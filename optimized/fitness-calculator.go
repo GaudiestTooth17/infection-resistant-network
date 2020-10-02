@@ -1,6 +1,8 @@
 package optimized
 
 import (
+	"fmt"
+
 	"github.com/GaudiestTooth17/infection-resistant-network/dynamicnet"
 	"github.com/GaudiestTooth17/infection-resistant-network/evolution"
 )
@@ -32,11 +34,14 @@ func (n NetworkFitnessCalculator) CalculateFitness(genotype evolution.Float32Gen
 
 	trialFitnesses := make([]float32, n.numTrials)
 	for trial := 0; trial < n.numTrials; trial++ {
+		fmt.Printf("trial %d\n", trial)
 		network := dynamicnet.NewDiseasedNetwork(n.disease, n.network, n.infectionStrategy, behavior)
 		for step := 0; step < n.simLength; step++ {
+			fmt.Printf("step %d\n", step)
 			network.Step()
 		}
-		trialFitnesses[trial] = float32(len(network.FindNodesInState(dynamicnet.StateI))) / float32(network.NumNodes())
+		fmt.Println()
+		trialFitnesses[trial] = float32(network.NumNodes()-len(network.FindNodesInState(dynamicnet.StateI))) / float32(network.NumNodes())
 	}
 
 	totalFitness := float32(0)
