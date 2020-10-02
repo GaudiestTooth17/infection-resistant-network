@@ -30,7 +30,7 @@ func readGenotypeConf(filename string) []evolution.Float32Genotype {
 		}
 		genotypes = append(genotypes, lineToGenotype(line))
 	}
-	if !errors.Is(err, io.EOF) {
+	if err != nil && !errors.Is(err, io.EOF) {
 		panic(err)
 	}
 	return genotypes
