@@ -30,6 +30,10 @@ func NewNetworkFitnessCalculator(network dynamicnet.Network, numTrials, simLengt
 
 // CalculateFitness - Calculate how fit the parameters are as agent behaviors for a DiseasedNetwork
 func (n NetworkFitnessCalculator) CalculateFitness(genotype evolution.Float32Genotype) float32 {
+	// consider a fitness function that rewards spreading a positive infection while penalizing spreading a negative infection
+	// fewer disconnected components is a plus, infected nodes is a minus
+	// the key is to preserve the good a network serves
+	// in the future, add ability for agents to change behavior over time
 	behavior := genotypeToAgentBehavior(genotype)
 
 	trialFitnesses := make([]float32, n.numTrials)
