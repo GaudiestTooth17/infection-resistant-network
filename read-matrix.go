@@ -19,7 +19,7 @@ func readAdjacencyList(fileName string) dynamicnet.Network {
 	defer file.Close()
 	fileReader := bufio.NewReader(file)
 
-	//set up adjMatrix
+	// create network
 	line, err := fileReader.ReadString('\n')
 	if err != nil {
 		panic(err)
@@ -28,7 +28,7 @@ func readAdjacencyList(fileName string) dynamicnet.Network {
 	if err != nil {
 		panic(err)
 	}
-	adjMatrix := makeAdjacencyMatrix(n)
+	network := dynamicnet.NewNetwork(n)
 
 	//populate adjMatrix
 	for true {
@@ -40,9 +40,9 @@ func readAdjacencyList(fileName string) dynamicnet.Network {
 			panic(err)
 		}
 		i, j := lineToCoordinate(line)
-		adjMatrix[i][j] = 1
+		network.AddEdge(i, j, 1)
 	}
-	return dynamicnet.NewAdjacencyMatrix(adjMatrix)
+	return network
 }
 
 func makeAdjacencyMatrix(n int) [][]uint8 {

@@ -19,8 +19,9 @@ func TestImmuneNetwork(t *testing.T) {
 		if numSusceptible != numNodes-1 {
 			numExposed := len(net.FindNodesInState(StateE))
 			numInfected := len(net.FindNodesInState(StateI))
-			t.Errorf("Expected %d susceptible nodes, found %d. Also found %d exposed and %d infected.",
-				numNodes-1, numSusceptible, numExposed, numInfected)
+			numRecovered := len(net.FindNodesInState(StateR))
+			t.Errorf("(step %d) Expected %d susceptible nodes, found %d.\nAlso found %d exposed, %d infected, %d recovered.\n",
+				i, numNodes-1, numSusceptible, numExposed, numInfected, numRecovered)
 		}
 	}
 }

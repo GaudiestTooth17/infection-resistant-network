@@ -4,8 +4,10 @@ import (
 	"testing"
 )
 
+// TestStep runs a few steps and tests the state of the network after each one
+// numNodes can be adjusted
 func TestStep(t *testing.T) {
-	numNodes := 2000
+	numNodes := 500
 	adjMat := makeCompleteNetwork(numNodes)
 	iStrat := InfectN{n: 1}
 	dis := NewBasicDisease(1, 1, 1.0)

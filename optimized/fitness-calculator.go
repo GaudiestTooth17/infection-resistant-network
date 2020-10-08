@@ -41,8 +41,9 @@ func (n NetworkFitnessCalculator) CalculateFitness(genotype evolution.Float32Gen
 		fmt.Printf("trial %d\n", trial)
 		network := dynamicnet.NewDiseasedNetwork(n.disease, n.network, n.infectionStrategy, behavior)
 		for step := 0; step < n.simLength; step++ {
-			fmt.Printf("step %d\n", step)
-			network.Step()
+			fmt.Printf("step %d", step)
+			elapsedTime := network.Step()
+			fmt.Printf(" (%v)\n", elapsedTime)
 		}
 		fmt.Println()
 		trialFitnesses[trial] = float32(network.NumNodes()-len(network.FindNodesInState(dynamicnet.StateI))) / float32(network.NumNodes())

@@ -1,41 +1,42 @@
 package dynamicnet
 
 // Network represents an undirected graph/network
-type Network interface {
-	// edgeWeight returns the weight of the edge between n1 and n2 or 0 if there is no edge
-	edgeWeight(n1, n2 int) uint8
-	// numNodes gives the number of nodes in the network
-	numNodes() int
-	// remove the edge between n1 and n2
-	removeEdge(n1, n2 int)
-	// add (or update) edge between n1 and n2 with the provided weight
-	addEdge(n1, n2 int, weight uint8)
+type Network struct {
+	// entries in neighbors are stored with the smaller node coming first, then the larger one
+	neighbors map[int]map[int]uint8
 }
 
-// adjacencyMatrix uses a 2d n by n slice to store edge weights
-type adjacencyMatrix struct {
-	data [][]uint8
+// NewNetwork returns a Network with the given number of nodes
+func NewNetwork(numNodes int) Network {
+	neighbors := make(map[int]map[int]uint8)
+	for i := 0; i < numNodes; i++ {
+		neighbors[i] = make(map[int]uint8)
+	}
+	return Network{neighbors: neighbors}
 }
 
-// NewAdjacencyMatrix returns a network from the adjacency matrix
-func NewAdjacencyMatrix(matrix [][]uint8) Network {
-	return adjacencyMatrix{data: matrix}
+// NeighborsOf returns the neighbors of the given node
+func (n *Network) NeighborsOf(node int) map[int]uint8 {
+	return n.neighbors[node]
 }
 
-func (a adjacencyMatrix) edgeWeight(n1, n2 int) uint8 {
-	return a.data[n1][n2]
+// NumNodes returns the number of nodes in the network
+func (n *Network) NumNodes() int {
+	return len(n.neighbors)
 }
 
-func (a adjacencyMatrix) numNodes() int {
-	return len(a.data)
+// EdgeWeight returns the weight of the edge from node1 to node2
+func (n *Network) EdgeWeight(node1, node2 int) uint8 {
+	return n.neighbors[node1][node2]
 }
 
-func (a adjacencyMatrix) removeEdge(n1, n2 int) {
-	a.data[n1][n2] = 0
-	a.data[n2][n1] = 0
+// AddEdge adds an edge between node1 and node2 with the given weight
+func (n *Network) AddEdge(node1, node2 int, weight uint8) {
+	n.neighbors[node1][node2] = weight
+	n.neighbors[node2][node1] = weight
 }
 
-func (a adjacencyMatrix) addEdge(n1, n2 int, weight uint8) {
-	a.data[n1][n2] = weight
-	a.data[n2][n1] = weight
+func (n *Network) removeEdge(node1, node2 int) {
+	delete(n.neighbors[node1], node2)
+	delete(n.neighbors[node2], node1)
 }
