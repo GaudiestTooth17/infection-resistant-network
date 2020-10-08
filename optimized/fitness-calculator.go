@@ -46,7 +46,7 @@ func (n NetworkFitnessCalculator) CalculateFitness(genotype evolution.Float32Gen
 			fmt.Printf(" (%v)\n", elapsedTime)
 		}
 		fmt.Println()
-		trialFitnesses[trial] = float32(network.NumNodes()-len(network.FindNodesInState(dynamicnet.StateI))) / float32(network.NumNodes())
+		trialFitnesses[trial] = float32(len(network.FindNodesInState(dynamicnet.StateS))) / float32(network.NumNodes())
 	}
 
 	totalFitness := float32(0)

@@ -1,2 +1,2 @@
 minConnections,maxConnections,removeInfectedNeighborProb,addNeighborOfNeighborProb
-3,30,0.2,0.5
+3,30,0.2,0.01

@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-type void struct{}
+// Void is an empty struct used for more space efficient maps/sets
+type Void struct{}
 
 // DiseasedNetwork represents a dynamic network with a disease that tries to adapt to slow
 // the spread of the disease
@@ -13,7 +14,6 @@ type DiseasedNetwork struct {
 	nodeState   []uint8
 	numInfected uint32
 	timeInState []int16
-	rand        *rand.Rand
 	disease     Disease
 	adjMat      Network
 	behavior    AgentBehavior
@@ -31,7 +31,6 @@ func NewDiseasedNetwork(dis Disease, adjMat Network,
 	net := DiseasedNetwork{
 		nodeState: make([]uint8, adjMat.NumNodes()), numInfected: 0,
 		timeInState: make([]int16, adjMat.NumNodes()),
-		rand:        rand.New(rand.NewSource(time.Now().UnixNano())),
 		disease:     dis,
 		adjMat:      adjMat,
 		behavior:    behavior,
@@ -60,23 +59,26 @@ func (n *DiseasedNetwork) Step() time.Duration {
 func (n *DiseasedNetwork) spreadInfection() {
 	infectiousNodes := n.FindNodesInState(StateI)
 	atRiskGroups := make([]map[int]uint8, len(infectiousNodes))
-	for i, node := range infectiousNodes {
-		atRiskGroups[i] = n.findNeighbors(node, StateS)
+	groupIndex := 0
+	for node := range infectiousNodes {
+		atRiskGroups[groupIndex] = n.findNeighbors(node, StateS)
+		groupIndex++
 	}
 
 	for _, group := range atRiskGroups {
 		for node := range group {
-			if n.rand.Float32() < n.disease.InfectionProbability() {
+			if rand.Float32() < n.disease.InfectionProbability() {
 				n.changeState(node, StateE)
 			}
 		}
 	}
 }
 
-// findNeighbors finds all the neighbors of node with the indicated state. Use -1 to find all neighbors.
+// findNeighbors finds all the neighbors of node with the indicated state.
+// Use a negative value to find all neighbors.
 func (n *DiseasedNetwork) findNeighbors(node int, state int) map[int]uint8 {
 	neighbors := n.adjMat.NeighborsOf(node)
-	if state == -1 {
+	if state < 0 {
 		return neighbors
 	}
 
@@ -99,12 +101,12 @@ func (n *DiseasedNetwork) changeState(node, state int) {
 func (n *DiseasedNetwork) updateStates() {
 	exposedNodes := n.FindNodesInState(StateE)
 	infectedNodes := n.FindNodesInState(StateI)
-	for _, node := range exposedNodes {
+	for node := range exposedNodes {
 		if n.timeInState[node] == n.disease.TimeToI() {
 			n.changeState(node, StateI)
 		}
 	}
-	for _, node := range infectedNodes {
+	for node := range infectedNodes {
 		if n.timeInState[node] == n.disease.TimeToR() {
 			n.changeState(node, StateR)
 		}
@@ -112,21 +114,21 @@ func (n *DiseasedNetwork) updateStates() {
 }
 
 // FindNodesInState finds all the nodes in the network with the given state
-func (n *DiseasedNetwork) FindNodesInState(state int) []int {
+func (n *DiseasedNetwork) FindNodesInState(state int) map[int]Void {
 	s := uint8(state)
-	nodes := make([]int, 0)
+	nodes := make(map[int]Void)
 	for node, st := range n.nodeState {
 		if s == st {
-			nodes = append(nodes, node)
+			nodes[node] = Void{}
 		}
 	}
 	return nodes
 }
 
-// if this is slow, consider working with sets (maps instead)
+// updateConnections finds the edges that should be added and removed for each node in the graph
 func (n *DiseasedNetwork) updateConnections() {
-	toAdd := make([]map[int]void, n.NumNodes())
-	toRemove := make([]map[int]void, n.NumNodes())
+	toAdd := make([]map[int]Void, n.NumNodes())
+	toRemove := make([]map[int]Void, n.NumNodes())
 
 	for node := 0; node < n.NumNodes(); node++ {
 		toAdd[node] = n.findNeighborsToAdd(node)
@@ -148,25 +150,27 @@ func (n *DiseasedNetwork) updateConnections() {
 	}
 }
 
-func (n *DiseasedNetwork) findNeighborsToRemove(node int) map[int]void {
-	toRemove := make(map[int]void)
+func (n *DiseasedNetwork) findNeighborsToRemove(node int) map[int]Void {
+	toRemove := make(map[int]Void)
 	infectedNeighbors := n.findNeighbors(node, StateI)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for neighbor := range infectedNeighbors {
-		if n.rand.Float32() < n.behavior.removeInfectedNeighborProb() {
-			toRemove[neighbor] = void{}
+		if r.Float32() < n.behavior.removeInfectedNeighborProb() {
+			toRemove[neighbor] = Void{}
 		}
 	}
 	return toRemove
 }
 
-func (n *DiseasedNetwork) findNeighborsToAdd(node int) map[int]void {
-	currentNeighbors := n.findNeighbors(node, -1)
-	toAdd := make(map[int]void)
+func (n *DiseasedNetwork) findNeighborsToAdd(node int) map[int]Void {
+	currentNeighbors := n.findNeighbors(node, -2)
+	toAdd := make(map[int]Void)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for neighbor := range currentNeighbors {
-		nOfn := n.findNeighbors(neighbor, -1)
+		nOfn := n.findNeighbors(neighbor, -3)
 		for nn := range nOfn {
-			if n.rand.Float32() < n.behavior.addNeighborOfNeighborProb() {
-				toAdd[nn] = void{}
+			if r.Float32() < n.behavior.addNeighborOfNeighborProb() {
+				toAdd[nn] = Void{}
 			}
 		}
 	}

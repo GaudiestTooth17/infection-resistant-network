@@ -5,4 +5,4 @@ infectionStrategy (number-of-nodes-to-infect-at-start)
 1
 100
 4 7 .25
-10
+1000
