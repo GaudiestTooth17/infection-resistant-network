@@ -2,7 +2,7 @@ numTrials
 simLength
 disease (timeToI timeToR infectionProbability)
 infectionStrategy (number-of-nodes-to-infect-at-start)
+10
 1
-100
 4 7 .25
 1000

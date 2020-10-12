@@ -1,7 +1,7 @@
 package optimized
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/dynamicnet"
 	"github.com/GaudiestTooth17/infection-resistant-network/evolution"
@@ -37,16 +37,14 @@ func (n NetworkFitnessCalculator) CalculateFitness(genotype evolution.Float32Gen
 	behavior := genotypeToAgentBehavior(genotype)
 
 	trialFitnesses := make([]float32, n.numTrials)
+	fitnessChannel := make(chan FitnessData)
 	for trial := 0; trial < n.numTrials; trial++ {
-		fmt.Printf("trial %d\n", trial)
 		network := dynamicnet.NewDiseasedNetwork(n.disease, n.network, n.infectionStrategy, behavior)
-		for step := 0; step < n.simLength; step++ {
-			fmt.Printf("step %d", step)
-			elapsedTime := network.Step()
-			fmt.Printf(" (%v)\n", elapsedTime)
-		}
-		fmt.Println()
-		trialFitnesses[trial] = float32(len(network.FindNodesInState(dynamicnet.StateS))) / float32(network.NumNodes())
+		go calcAsync(fitnessChannel, trial, network, n.simLength)
+	}
+	for i := 0; i < n.numTrials; i++ {
+		fData := <-fitnessChannel
+		trialFitnesses[fData.trialNumber] = fData.fitness
 	}
 
 	totalFitness := float32(0)
@@ -54,6 +52,28 @@ func (n NetworkFitnessCalculator) CalculateFitness(genotype evolution.Float32Gen
 		totalFitness += fitness / float32(n.numTrials)
 	}
 	return totalFitness
+}
+
+// FitnessData conveys data about a fitness calculation over a channel
+type FitnessData struct {
+	trialNumber int
+	fitness     float32
+	elapsedTime time.Duration
+}
+
+func calcAsync(outChan chan<- FitnessData, trialNumber int, network dynamicnet.DiseasedNetwork, numSteps int) {
+	totalDuration := time.Duration(0)
+	for i := 0; i < numSteps; i++ {
+		totalDuration += network.Step()
+	}
+	fitness := rateNetwork(network)
+	outChan <- FitnessData{trialNumber: trialNumber, fitness: fitness, elapsedTime: totalDuration}
+}
+
+func rateNetwork(network dynamicnet.DiseasedNetwork) float32 {
+	susceptibleNodes := len(network.FindNodesInState(dynamicnet.StateS))
+	totalNodes := network.NumNodes()
+	return float32(susceptibleNodes) / float32(totalNodes)
 }
 
 // genotypeToAgentBehavior converts a Float32Genotype to an AgentBehavior

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -20,7 +21,8 @@ func main() {
 	fmt.Printf("Genotypes: %v\n", genotypes)
 
 	for i, genotype := range genotypes {
+		timeStart := time.Now()
 		fitness := fitnessCalculator.CalculateFitness(genotype)
-		fmt.Printf("Genotype %d has fitness %f\n", i, fitness)
+		fmt.Printf("Genotype %d has fitness %f (%v).\n", i, fitness, time.Now().Sub(timeStart))
 	}
 }

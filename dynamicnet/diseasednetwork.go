@@ -25,14 +25,14 @@ func (n *DiseasedNetwork) NumNodes() int {
 }
 
 // NewDiseasedNetwork creates a new instance of DiseasedNetwork
-func NewDiseasedNetwork(dis Disease, adjMat Network,
+func NewDiseasedNetwork(dis Disease, underlyingNet Network,
 	infectionStrat InitialInfectionStrategy, behavior AgentBehavior) DiseasedNetwork {
 
 	net := DiseasedNetwork{
-		nodeState: make([]uint8, adjMat.NumNodes()), numInfected: 0,
-		timeInState: make([]int16, adjMat.NumNodes()),
+		nodeState: make([]uint8, underlyingNet.NumNodes()), numInfected: 0,
+		timeInState: make([]int16, underlyingNet.NumNodes()),
 		disease:     dis,
-		adjMat:      adjMat,
+		adjMat:      underlyingNet.MakeCopy(),
 		behavior:    behavior,
 	}
 
