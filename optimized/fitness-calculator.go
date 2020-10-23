@@ -1,6 +1,7 @@
 package optimized
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/dynamicnet"
@@ -72,6 +73,10 @@ func calcAsync(outChan chan<- FitnessData, trialNumber int, network dynamicnet.D
 
 func rateNetwork(network dynamicnet.DiseasedNetwork) float32 {
 	susceptibleNodes := len(network.FindNodesInState(dynamicnet.StateS))
+	exposedNodes := len(network.FindNodesInState(dynamicnet.StateE))
+	infectedNodes := len(network.FindNodesInState(dynamicnet.StateI))
+	removedNodes := len(network.FindNodesInState(dynamicnet.StateR))
+	fmt.Printf("%d S, %d E, %d I, %d R\n", susceptibleNodes, infectedNodes, exposedNodes, removedNodes)
 	totalNodes := network.NumNodes()
 	return float32(susceptibleNodes) / float32(totalNodes)
 }
