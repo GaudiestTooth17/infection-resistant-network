@@ -1,4 +1,4 @@
-package dynamicnet
+package diseasednetwork
 
 // Network represents an undirected graph/network
 type Network struct {

@@ -1,4 +1,4 @@
-package dynamicnet
+package diseasednetwork
 
 // makeCompleteNetwork returns a complete network with the given number of nodes
 func makeCompleteNetwork(numNodes int) Network {

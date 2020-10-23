@@ -11,7 +11,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/GaudiestTooth17/infection-resistant-network/dynamicnet"
+	"github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/optimized"
 )
@@ -44,8 +44,8 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 
 	var numTrials int
 	var simLength int
-	var disease dynamicnet.Disease
-	var infectionStrategy dynamicnet.InitialInfectionStrategy
+	var disease diseasednetwork.Disease
+	var infectionStrategy diseasednetwork.InitialInfectionStrategy
 	numTrials, err = strconv.Atoi(line[:len(line)-1])
 	if err != nil {
 		panic(err)
@@ -74,7 +74,7 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 }
 
 // parseDisease parameters from line
-func parseDisease(line string) dynamicnet.Disease {
+func parseDisease(line string) diseasednetwork.Disease {
 	fields := strings.Fields(line)
 	if len(fields) != 3 {
 		fmt.Printf("%v\n", fields)
@@ -96,14 +96,14 @@ func parseDisease(line string) dynamicnet.Disease {
 	if err != nil {
 		panic(err)
 	}
-	return dynamicnet.NewBasicDisease(int16(timeToI), int16(timeToR), float32(infectionProbability))
+	return diseasednetwork.NewBasicDisease(int16(timeToI), int16(timeToR), float32(infectionProbability))
 }
 
 // parseInfectionStrategy parameters from line
-func parseInfectionStrategy(line string) dynamicnet.InitialInfectionStrategy {
+func parseInfectionStrategy(line string) diseasednetwork.InitialInfectionStrategy {
 	n, err := strconv.Atoi(line)
 	if err != nil {
 		panic(err)
 	}
-	return dynamicnet.NewInfectN(n)
+	return diseasednetwork.NewInfectN(n)
 }

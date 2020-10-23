@@ -1,4 +1,4 @@
-package dynamicnet
+package diseasednetwork
 
 // represent disease states
 const (

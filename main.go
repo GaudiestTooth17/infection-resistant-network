@@ -20,9 +20,9 @@ func main() {
 	// fmt.Printf("Fitness Calculator: %v\n", fitnessCalculator)
 	fmt.Printf("Genotypes: %v\n", genotypes)
 
-	for i, genotype := range genotypes {
+	for i := range genotypes {
 		timeStart := time.Now()
-		fitness := fitnessCalculator.CalculateFitness(genotype)
+		fitness := fitnessCalculator.CalculateFitness()
 		fmt.Printf("Genotype %d has fitness %f (%v).\n", i, fitness, time.Now().Sub(timeStart))
 	}
 }

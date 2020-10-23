@@ -1,4 +1,4 @@
-package dynamicnet
+package diseasednetwork
 
 import (
 	"math/rand"
@@ -16,7 +16,6 @@ type DiseasedNetwork struct {
 	timeInState []int16
 	disease     Disease
 	adjMat      Network
-	behavior    AgentBehavior
 }
 
 // NumNodes returns the number of nodes in a network
@@ -26,14 +25,13 @@ func (n *DiseasedNetwork) NumNodes() int {
 
 // NewDiseasedNetwork creates a new instance of DiseasedNetwork
 func NewDiseasedNetwork(dis Disease, underlyingNet Network,
-	infectionStrat InitialInfectionStrategy, behavior AgentBehavior) DiseasedNetwork {
+	infectionStrat InitialInfectionStrategy) DiseasedNetwork {
 
 	net := DiseasedNetwork{
 		nodeState: make([]uint8, underlyingNet.NumNodes()), numInfected: 0,
 		timeInState: make([]int16, underlyingNet.NumNodes()),
 		disease:     dis,
 		adjMat:      underlyingNet.MakeCopy(),
-		behavior:    behavior,
 	}
 
 	for node := 0; node < net.adjMat.NumNodes(); node++ {
@@ -47,7 +45,6 @@ func NewDiseasedNetwork(dis Disease, underlyingNet Network,
 // Step through one time step
 func (n *DiseasedNetwork) Step() time.Duration {
 	stepStart := time.Now()
-	n.updateConnections()
 	n.spreadInfection()
 	n.updateStates()
 	for i := range n.timeInState {
@@ -123,56 +120,4 @@ func (n *DiseasedNetwork) FindNodesInState(state int) map[int]Void {
 		}
 	}
 	return nodes
-}
-
-// updateConnections finds the edges that should be added and removed for each node in the graph
-func (n *DiseasedNetwork) updateConnections() {
-	toAdd := make([]map[int]Void, n.NumNodes())
-	toRemove := make([]map[int]Void, n.NumNodes())
-
-	for node := 0; node < n.NumNodes(); node++ {
-		toAdd[node] = n.findNeighborsToAdd(node)
-		toRemove[node] = n.findNeighborsToRemove(node)
-	}
-
-	// add all the requested edges
-	for node := 0; node < n.NumNodes(); node++ {
-		for neighbor := range toAdd[node] {
-			n.adjMat.AddEdge(node, neighbor, 1)
-		}
-	}
-
-	// removing takes precedence over adding, so remove all the requested edges next
-	for node := 0; node < n.NumNodes(); node++ {
-		for neighbor := range toRemove[node] {
-			n.adjMat.removeEdge(node, neighbor)
-		}
-	}
-}
-
-func (n *DiseasedNetwork) findNeighborsToRemove(node int) map[int]Void {
-	toRemove := make(map[int]Void)
-	infectedNeighbors := n.findNeighbors(node, StateI)
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for neighbor := range infectedNeighbors {
-		if r.Float32() < n.behavior.removeInfectedNeighborProb() {
-			toRemove[neighbor] = Void{}
-		}
-	}
-	return toRemove
-}
-
-func (n *DiseasedNetwork) findNeighborsToAdd(node int) map[int]Void {
-	currentNeighbors := n.findNeighbors(node, -2)
-	toAdd := make(map[int]Void)
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	for neighbor := range currentNeighbors {
-		nOfn := n.findNeighbors(neighbor, -3)
-		for nn := range nOfn {
-			if r.Float32() < n.behavior.addNeighborOfNeighborProb() {
-				toAdd[nn] = Void{}
-			}
-		}
-	}
-	return toAdd
 }

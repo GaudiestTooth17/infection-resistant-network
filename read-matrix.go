@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/GaudiestTooth17/infection-resistant-network/dynamicnet"
+	"github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
 )
 
-func readAdjacencyList(fileName string) dynamicnet.Network {
+func readAdjacencyList(fileName string) diseasednetwork.Network {
 	file, err := os.Open(fileName)
 	if err != nil {
 		panic(err)
@@ -28,7 +28,7 @@ func readAdjacencyList(fileName string) dynamicnet.Network {
 	if err != nil {
 		panic(err)
 	}
-	network := dynamicnet.NewNetwork(n)
+	network := diseasednetwork.NewNetwork(n)
 
 	//populate adjMatrix
 	for true {
