@@ -76,7 +76,7 @@ def output_graph(G: nx.Graph):
     """
     print the graph to stdout using the typical representation
     """
-    print(max(G.nodes()))
+    print(max(G.nodes()) + 1)
     for e in G.edges():
         print(f'{e[0]} {e[1]}')
 

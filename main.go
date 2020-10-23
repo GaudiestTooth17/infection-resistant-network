@@ -7,22 +7,22 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 4 {
-		fmt.Printf("Usage: %s <startingMatrixName> <calculatorConfName> <genotypeConfName>\n", os.Args[0])
+	if len(os.Args) < 3 {
+		fmt.Printf("Usage: %s <startingMatrixName> <simConfName>\n", os.Args[0])
 		return
 	}
 	startingMatrixName := os.Args[1]
-	calculatorConfName := os.Args[2]
-	genotypeConfName := os.Args[3]
+	simConfName := os.Args[2]
+	// genotypeConfName := os.Args[3]
 
-	fitnessCalculator := readFitnessCalculator(calculatorConfName, startingMatrixName)
-	genotypes := readGenotypeConf(genotypeConfName)
+	fitnessCalculator := readFitnessCalculator(simConfName, startingMatrixName)
+	// genotypes := readGenotypeConf(genotypeConfName)
 	// fmt.Printf("Fitness Calculator: %v\n", fitnessCalculator)
-	fmt.Printf("Genotypes: %v\n", genotypes)
+	// fmt.Printf("Genotypes: %v\n", genotypes)
 
-	for i := range genotypes {
+	for i := 0; i < 1; i++ {
 		timeStart := time.Now()
 		fitness := fitnessCalculator.CalculateFitness()
-		fmt.Printf("Genotype %d has fitness %f (%v).\n", i, fitness, time.Now().Sub(timeStart))
+		fmt.Printf("Trial %d: proportion of nodes still susceptible: %f (%v).\n", i, fitness, time.Now().Sub(timeStart))
 	}
 }

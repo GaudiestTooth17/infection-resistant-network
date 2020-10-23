@@ -1,7 +1,6 @@
 package optimized
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
@@ -73,10 +72,10 @@ func calcAsync(outChan chan<- FitnessData, trialNumber int, network diseasednetw
 
 func rateNetwork(network diseasednetwork.DiseasedNetwork) float32 {
 	susceptibleNodes := len(network.FindNodesInState(diseasednetwork.StateS))
-	exposedNodes := len(network.FindNodesInState(diseasednetwork.StateE))
-	infectedNodes := len(network.FindNodesInState(diseasednetwork.StateI))
-	removedNodes := len(network.FindNodesInState(diseasednetwork.StateR))
-	fmt.Printf("%d S, %d E, %d I, %d R\n", susceptibleNodes, infectedNodes, exposedNodes, removedNodes)
+	// exposedNodes := len(network.FindNodesInState(diseasednetwork.StateE))
+	// infectedNodes := len(network.FindNodesInState(diseasednetwork.StateI))
+	// removedNodes := len(network.FindNodesInState(diseasednetwork.StateR))
+	// fmt.Printf("%d S, %d E, %d I, %d R\n", susceptibleNodes, infectedNodes, exposedNodes, removedNodes)
 	totalNodes := network.NumNodes()
 	return float32(susceptibleNodes) / float32(totalNodes)
 }

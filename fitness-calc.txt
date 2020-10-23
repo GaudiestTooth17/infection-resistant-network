@@ -4,5 +4,5 @@ disease (timeToI timeToR infectionProbability)
 infectionStrategy (number-of-nodes-to-infect-at-start)
 100
 100
-4 7 .01
+4 7 .02
 10
