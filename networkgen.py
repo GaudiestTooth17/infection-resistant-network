@@ -3,6 +3,7 @@
 from typing import List
 
 import networkx as nx
+import matplotlib.pyplot as plt
 import sys
 
 
@@ -19,6 +20,8 @@ def main(argv):
     graph = make_complete_clique_gate_graph(num_big_components, big_component_size, gate_size)
 
     output_graph(graph)
+    # nx.draw(graph)
+    # plt.show()
 
 
 def union_components(components: List[nx.Graph]) -> nx.Graph:

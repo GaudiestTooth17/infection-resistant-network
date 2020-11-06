@@ -46,11 +46,13 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 	var simLength int
 	var disease diseasednetwork.Disease
 	var infectionStrategy diseasednetwork.InitialInfectionStrategy
+	// numTrials is on the first line
 	numTrials, err = strconv.Atoi(line[:len(line)-1])
 	if err != nil {
 		panic(err)
 	}
-	for i := 0; i < 3; i++ {
+	// read the rest of the lines
+	for i := 0; i < 2; i++ {
 		line, err := reader.ReadString('\n')
 		if err != nil && !errors.Is(err, io.EOF) {
 			panic(err)
@@ -60,8 +62,6 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 			simLength, err = strconv.Atoi(line)
 		} else if i == 1 {
 			disease = parseDisease(line)
-		} else if i == 2 {
-			infectionStrategy = parseInfectionStrategy(line)
 		}
 		if err != nil && !errors.Is(err, io.EOF) {
 			fmt.Printf("Problem with value %d\n", i)
@@ -76,27 +76,35 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 // parseDisease parameters from line
 func parseDisease(line string) diseasednetwork.Disease {
 	fields := strings.Fields(line)
-	if len(fields) != 3 {
+	if len(fields) != 4 {
 		fmt.Printf("%v\n", fields)
 		panic("Expected three values for disease description!")
 	}
+
 	timeToI, err := strconv.Atoi(fields[0])
 	if err != nil {
 		panic(err)
 	} else if timeToI > math.MaxInt16 || timeToI < 0 {
 		panic("timeToI must be in the range of a 16 bit int and non-negative.")
 	}
+
 	timeToR, err := strconv.Atoi(fields[1])
 	if err != nil {
 		panic(err)
 	} else if timeToR > math.MaxInt16 || timeToR < 0 {
 		panic("timeToR must be in the range of a 16 bit int and non-negative.")
 	}
+
 	infectionProbability, err := strconv.ParseFloat(fields[2], 32)
 	if err != nil {
 		panic(err)
+	} else if infectionProbability < 0 || infectionProbability > 1.0 {
+		panic("infectionProbability must be at least 0 and at most 1.")
 	}
-	return diseasednetwork.NewBasicDisease(int16(timeToI), int16(timeToR), float32(infectionProbability))
+
+	numberToInfectAtStart, err := strconv.Atoi(fields[3])
+	return diseasednetwork.NewBasicDisease(int16(timeToI), int16(timeToR), float32(infectionProbability),
+		diseasednetwork.NewInfectN(numberToInfectAtStart))
 }
 
 // parseInfectionStrategy parameters from line

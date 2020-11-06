@@ -39,7 +39,7 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 	trialFitnesses := make([]float32, n.numTrials)
 	fitnessChannel := make(chan FitnessData)
 	for trial := 0; trial < n.numTrials; trial++ {
-		network := diseasednetwork.NewDiseasedNetwork(n.disease, n.network, n.infectionStrategy)
+		network := diseasednetwork.NewDiseasedNetwork([]diseasednetwork.Disease{n.disease.MakeCopy()}, n.network)
 		go calcAsync(fitnessChannel, trial, network, n.simLength)
 	}
 	for i := 0; i < n.numTrials; i++ {
@@ -71,7 +71,7 @@ func calcAsync(outChan chan<- FitnessData, trialNumber int, network diseasednetw
 }
 
 func rateNetwork(network diseasednetwork.DiseasedNetwork) float32 {
-	susceptibleNodes := len(network.FindNodesInState(diseasednetwork.StateS))
+	susceptibleNodes := len(network.FindNodesInState(diseasednetwork.StateS, 0))
 	// exposedNodes := len(network.FindNodesInState(diseasednetwork.StateE))
 	// infectedNodes := len(network.FindNodesInState(diseasednetwork.StateI))
 	// removedNodes := len(network.FindNodesInState(diseasednetwork.StateR))

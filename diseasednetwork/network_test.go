@@ -4,36 +4,34 @@ import (
 	"testing"
 )
 
-func makeCompleteDiseasedNet(numNodes, numToInfect int) DiseasedNetwork {
+func makeCompleteDiseasedNet(numNodes, numToInfect int) (DiseasedNetwork, Disease) {
 	net := makeCompleteNetwork(numNodes)
-	dis := NewBasicDisease(0, 0, 0)
-	infectionStrat := InfectN{n: numToInfect}
-	diseasedNet := NewDiseasedNetwork(dis, net, infectionStrat, NewSimpleBehavior(0, numNodes, 0.0, 0.0))
-	return diseasedNet
+	dis := NewBasicDisease(0, 0, 0, InfectN{n: numToInfect})
+	diseasedNet := NewDiseasedNetwork([]Disease{dis}, net)
+	return diseasedNet, dis
 }
 
-func makeCircularDiseasedNet(numNodes, numToInfect int) DiseasedNetwork {
+func makeCircularDiseasedNet(numNodes, numToInfect int) (DiseasedNetwork, Disease) {
 	net := makeCircularNetwork(numNodes)
-	dis := NewBasicDisease(0, 0, 0)
-	infectionStrat := InfectN{n: numToInfect}
-	diseasedNet := NewDiseasedNetwork(dis, net, infectionStrat, NewSimpleBehavior(0, numNodes, 0.0, 0.0))
-	return diseasedNet
+	dis := NewBasicDisease(0, 0, 0, InfectN{n: numToInfect})
+	diseasedNet := NewDiseasedNetwork([]Disease{dis}, net)
+	return diseasedNet, dis
 }
 
 func TestFindNeighbors(t *testing.T) {
 	numNodes := 4
-	diseasedNet := makeCompleteDiseasedNet(numNodes, 0)
+	diseasedNet, _ := makeCompleteDiseasedNet(numNodes, 0)
 
 	for node := 0; node < numNodes; node++ {
-		numNeighbors := len(diseasedNet.findNeighbors(node, -1))
+		numNeighbors := len(diseasedNet.findNeighbors(node, -1, 0))
 		if numNeighbors != numNodes-1 {
 			t.Errorf("Expected %d neighbors for node %d, found %d", numNodes-1, node, numNeighbors)
 		}
 	}
 
-	diseasedNet = makeCircularDiseasedNet(numNodes, 0)
+	diseasedNet, _ = makeCircularDiseasedNet(numNodes, 0)
 	for node := 0; node < numNodes; node++ {
-		numNeighbors := len(diseasedNet.findNeighbors(node, -1))
+		numNeighbors := len(diseasedNet.findNeighbors(node, -1, 0))
 		if numNeighbors != 2 {
 			t.Errorf("Expected node %d to have 2 neighbors, has %d neighbors", node, numNeighbors)
 		}
@@ -42,20 +40,20 @@ func TestFindNeighbors(t *testing.T) {
 
 func TestState(t *testing.T) {
 	numNodes := 10
-	diseasedNet := makeCompleteDiseasedNet(numNodes, 0)
-	if len(diseasedNet.FindNodesInState(StateS)) != numNodes {
+	_, dis := makeCompleteDiseasedNet(numNodes, 0)
+	if len(dis.FindNodesInState(StateS)) != numNodes {
 		t.Errorf("Expected %d susceptible nodes before changing states, found %d",
-			numNodes, len(diseasedNet.FindNodesInState(StateS)))
+			numNodes, len(dis.FindNodesInState(StateS)))
 	}
 
-	diseasedNet.changeState(1, StateE)
-	diseasedNet.changeState(2, StateI)
-	diseasedNet.changeState(3, StateR)
+	dis.SetState(1, StateE)
+	dis.SetState(2, StateI)
+	dis.SetState(3, StateR)
 
-	susceptible := diseasedNet.FindNodesInState(StateS)
-	exposed := diseasedNet.FindNodesInState(StateE)
-	infected := diseasedNet.FindNodesInState(StateI)
-	removed := diseasedNet.FindNodesInState(StateR)
+	susceptible := dis.FindNodesInState(StateS)
+	exposed := dis.FindNodesInState(StateE)
+	infected := dis.FindNodesInState(StateI)
+	removed := dis.FindNodesInState(StateR)
 	if len(susceptible) != 7 {
 		t.Errorf("Expected 7 susceptible nodes, found %d", len(susceptible))
 	}
