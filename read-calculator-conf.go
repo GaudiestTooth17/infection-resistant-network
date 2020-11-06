@@ -45,7 +45,6 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 	var numTrials int
 	var simLength int
 	var disease diseasednetwork.Disease
-	var infectionStrategy diseasednetwork.InitialInfectionStrategy
 	// numTrials is on the first line
 	numTrials, err = strconv.Atoi(line[:len(line)-1])
 	if err != nil {
@@ -70,7 +69,7 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 		}
 	}
 	fmt.Printf("num trials: %d\n", numTrials)
-	return optimized.NewNetworkFitnessCalculator(adjacencyMatrix, numTrials, simLength, infectionStrategy, disease)
+	return optimized.NewNetworkFitnessCalculator(adjacencyMatrix, numTrials, simLength, disease)
 }
 
 // parseDisease parameters from line

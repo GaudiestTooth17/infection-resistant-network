@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
+	dsnet "github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
 	"github.com/GaudiestTooth17/infection-resistant-network/dynamicnet"
 	"github.com/GaudiestTooth17/infection-resistant-network/evolution"
 )
@@ -11,21 +12,19 @@ import (
 // NetworkFitnessCalculator implements manager.FitnessCalculator and
 // measures the fitness of an agent behavior on a network
 type NetworkFitnessCalculator struct {
-	network           diseasednetwork.Network
-	numTrials         int
-	simLength         int
-	disease           diseasednetwork.Disease
-	infectionStrategy diseasednetwork.InitialInfectionStrategy
+	network   diseasednetwork.Network
+	numTrials int
+	simLength int
+	disease   diseasednetwork.Disease
 }
 
 // NewNetworkFitnessCalculator creates a NetworkFitnessCalculator with the provided values
-func NewNetworkFitnessCalculator(network diseasednetwork.Network, numTrials, simLength int, infStrat diseasednetwork.InitialInfectionStrategy, disease diseasednetwork.Disease) NetworkFitnessCalculator {
+func NewNetworkFitnessCalculator(network dsnet.Network, numTrials, simLength int, disease dsnet.Disease) NetworkFitnessCalculator {
 	return NetworkFitnessCalculator{
-		network:           network,
-		numTrials:         numTrials,
-		simLength:         simLength,
-		infectionStrategy: infStrat,
-		disease:           disease,
+		network:   network,
+		numTrials: numTrials,
+		simLength: simLength,
+		disease:   disease,
 	}
 }
 

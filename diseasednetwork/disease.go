@@ -72,6 +72,7 @@ func (d *basicDisease) State(node int) uint8 {
 
 func (d *basicDisease) SetState(node int, state uint8) {
 	d.nodeState[node] = state
+	d.timeInState[node] = 0
 }
 
 func (d *basicDisease) ResetTimeInState(node int) {
