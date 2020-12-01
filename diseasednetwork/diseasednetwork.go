@@ -96,18 +96,7 @@ func (n *DiseasedNetwork) findNeighbors(node int, state int, diseaseIndex int) m
 // This happens for each disease in diseases.
 func (n *DiseasedNetwork) updateStates() {
 	for _, disease := range n.diseases {
-		exposedNodes := disease.FindNodesInState(StateE)
-		infectedNodes := disease.FindNodesInState(StateI)
-		for node := range exposedNodes {
-			if disease.TimeInState(node) == disease.TimeToI() {
-				disease.SetState(node, StateI)
-			}
-		}
-		for node := range infectedNodes {
-			if disease.TimeInState(node) == disease.TimeToR() {
-				disease.SetState(node, StateR)
-			}
-		}
+		disease.updateStates()
 	}
 }
 

@@ -1,5 +1,7 @@
 package diseasednetwork
 
+// todo: add a rating function to basicDisease
+
 // represent disease states
 const (
 	StateS = iota
@@ -24,8 +26,6 @@ func NewBasicDisease(timeToI, timeToR int16, infectionProbability float32,
 
 // Disease represents an infection that spreads across a network
 type Disease interface {
-	TimeToI() int16
-	TimeToR() int16
 	InfectionProbability() float32
 	State(node int) uint8
 	SetState(node int, state uint8)
@@ -37,6 +37,8 @@ type Disease interface {
 	NumNodes() int
 	FindNodesInState(state int) map[int]Void
 	MakeCopy() Disease
+	updateStates()
+	Rate() float64
 }
 
 // basicDisease is a simple disease with constant values
@@ -48,16 +50,6 @@ type basicDisease struct {
 	timeInState          map[int]int16
 	infStrat             InitialInfectionStrategy
 	numNodes             int
-}
-
-// TimeToI returns the time it takes to change from the Exposed State to the Infectious State
-func (d basicDisease) TimeToI() int16 {
-	return d.timeToI
-}
-
-// TimeToR returns the time it takes to change from the Infectious State to the Removed State
-func (d basicDisease) TimeToR() int16 {
-	return d.timeToR
 }
 
 // InfectionProbability returns the probability that in one time step a node will infect
@@ -115,6 +107,32 @@ func (d *basicDisease) FindNodesInState(state int) map[int]Void {
 		}
 	}
 	return nodes
+}
+
+// updateStates updates the states and the time in state for all the nodes
+func (d *basicDisease) updateStates() {
+	exposedNodes := d.FindNodesInState(StateE)
+	infectedNodes := d.FindNodesInState(StateI)
+	for node := range exposedNodes {
+		if d.TimeInState(node) == d.timeToI {
+			d.SetState(node, StateI)
+		}
+	}
+	for node := range infectedNodes {
+		if d.TimeInState(node) == d.timeToR {
+			d.SetState(node, StateR)
+		}
+	}
+}
+
+func (d *basicDisease) Rate() float64 {
+	susceptibleNodes := len(d.FindNodesInState(StateS))
+	// exposedNodes := len(network.FindNodesInState(diseasednetwork.StateE))
+	// infectedNodes := len(network.FindNodesInState(diseasednetwork.StateI))
+	// removedNodes := len(network.FindNodesInState(diseasednetwork.StateR))
+	// fmt.Printf("%d S, %d E, %d I, %d R\n", susceptibleNodes, infectedNodes, exposedNodes, removedNodes)
+	totalNodes := d.NumNodes()
+	return float64(susceptibleNodes) / float64(totalNodes)
 }
 
 /*
