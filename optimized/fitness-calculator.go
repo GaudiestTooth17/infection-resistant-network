@@ -1,6 +1,7 @@
 package optimized
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
@@ -38,7 +39,7 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 	trialFitnesses := make([]float32, n.numTrials)
 	fitnessChannel := make(chan FitnessData)
 	for trial := 0; trial < n.numTrials; trial++ {
-		network := diseasednetwork.NewDiseasedNetwork([]diseasednetwork.Disease{n.disease.MakeCopy()}, n.network)
+		network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
 		go calcAsync(fitnessChannel, trial, network, n.simLength)
 	}
 	for i := 0; i < n.numTrials; i++ {
@@ -51,6 +52,44 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 		totalFitness += fitness / float32(n.numTrials)
 	}
 	return totalFitness
+}
+
+// CalcAndOutput sequentially calculates the fitness of a network
+// and prints the change in states to the screen
+func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
+	totalFitness := float32(0)
+	// run simulations
+	for i := 0; i < n.numTrials; i++ {
+		network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
+		// Set up previous state to be full of StateS so that the visualization
+		// starts with all the nodes in this state
+		previousState := make([]uint8, network.NumNodes())
+		for i := 0; i < len(previousState); i++ {
+			previousState[i] = dsnet.StateS
+		}
+		currentState := network.GetNodeStates(0)
+		printDifferenceInStates(previousState, currentState)
+
+		// run simulation
+		previousState = currentState
+		for step := 0; step < n.simLength; step++ {
+			network.Step()
+			currentState = network.GetNodeStates(0)
+			printDifferenceInStates(previousState, currentState)
+			previousState = currentState
+		}
+		totalFitness += rateNetwork(network)
+	}
+	return totalFitness / float32(n.numTrials)
+}
+
+func printDifferenceInStates(previous, current []uint8) {
+	for i := 0; i < len(previous); i++ {
+		if previous[i] != current[i] {
+			fmt.Printf("%d %d\n", i, current[i])
+		}
+	}
+	fmt.Println()
 }
 
 // FitnessData conveys data about a fitness calculation over a channel

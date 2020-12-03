@@ -9,7 +9,7 @@ import (
 type Void struct{}
 
 // DiseasedNetwork represents a dynamic network with a disease that tries to adapt to slow
-// the spread of the disease
+// the spread of the disease. The bad disease should be put in slot 0.
 type DiseasedNetwork struct {
 	diseases []Disease
 	adjMat   Network
@@ -110,4 +110,14 @@ func (n *DiseasedNetwork) FindNodesInState(state int, diseaseIndex int) map[int]
 		}
 	}
 	return nodes
+}
+
+// GetNodeStates returns a slice where the ith index contains the state of the ith node
+// in the disease number provided. This is useful for visualization.
+func (n *DiseasedNetwork) GetNodeStates(diseaseNumber int) []uint8 {
+	nodeStates := make([]uint8, n.NumNodes())
+	for node := 0; node < n.NumNodes(); node++ {
+		nodeStates[node] = n.diseases[diseaseNumber].State(node)
+	}
+	return nodeStates
 }
