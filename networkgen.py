@@ -82,6 +82,11 @@ def output_graph(G: nx.Graph):
     print(max(G.nodes()) + 1)
     for e in G.edges():
         print(f'{e[0]} {e[1]}')
+    # this code is just for the visualization program I made ("graph-visualizer")
+    print('\n')
+    layout = nx.spring_layout(G)
+    for id, coordinate in layout.items():
+        print(f'{id} {coordinate[0]} {coordinate[1]}')
 
 
 if __name__ == '__main__':
