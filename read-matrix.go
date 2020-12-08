@@ -33,8 +33,8 @@ func readAdjacencyList(fileName string) diseasednetwork.Network {
 	//populate adjMatrix
 	for true {
 		line, err = fileReader.ReadString('\n')
-		// This is the exit condition
-		if err != nil && errors.Is(err, io.EOF) {
+		// exit on EOF or if the line is length 1 (or 0) (as in it is only \n)
+		if (err != nil && errors.Is(err, io.EOF)) || len(line) < 2 {
 			break
 		} else if err != nil && !errors.Is(err, io.EOF) {
 			panic(err)
