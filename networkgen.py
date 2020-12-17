@@ -87,6 +87,7 @@ def output_graph(G: nx.Graph):
     layout = nx.spring_layout(G)
     for id, coordinate in layout.items():
         print(f'{id} {coordinate[0]} {coordinate[1]}')
+    print()
 
 
 if __name__ == '__main__':
