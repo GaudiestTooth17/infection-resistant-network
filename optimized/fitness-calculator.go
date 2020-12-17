@@ -51,6 +51,7 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 	for _, fitness := range trialFitnesses {
 		totalFitness += fitness / float32(n.numTrials)
 	}
+	fmt.Println("end")
 	return totalFitness
 }
 

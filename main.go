@@ -31,7 +31,7 @@ func main() {
 		timeStart := time.Now()
 		// fitness := fitnessCalculator.CalculateFitness()
 		fitness := fitnessCalculator.CalcAndOutput()
-		fmt.Printf("Trial %d: proportion of nodes still susceptible: %f (%v).\n",
+		fmt.Fprintf(os.Stderr, "Trial %d: proportion of nodes still susceptible: %f (%v).\n",
 			i, fitness, time.Now().Sub(timeStart))
 	}
 }
