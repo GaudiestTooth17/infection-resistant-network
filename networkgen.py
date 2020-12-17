@@ -83,7 +83,7 @@ def output_graph(G: nx.Graph):
     for e in G.edges():
         print(f'{e[0]} {e[1]}')
     # this code is just for the visualization program I made ("graph-visualizer")
-    print('\n')
+    print()
     layout = nx.spring_layout(G)
     for id, coordinate in layout.items():
         print(f'{id} {coordinate[0]} {coordinate[1]}')
