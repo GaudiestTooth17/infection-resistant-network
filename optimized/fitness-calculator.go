@@ -51,7 +51,6 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 	for _, fitness := range trialFitnesses {
 		totalFitness += fitness / float32(n.numTrials)
 	}
-	fmt.Println("end")
 	return totalFitness
 }
 
@@ -71,10 +70,12 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 		}
 		totalFitness += rateNetwork(network)
 	}
+
+	fmt.Println("end")
 	return totalFitness / float32(n.numTrials)
 }
 
-// For each node with a different state, prints "<node>, <state>\n" to stdout. Finishes with a newline.
+// For each node with a different state, prints "<node> <state>\n" to stdout. Finishes with a newline.
 func printStates(states []uint8) {
 	for node, state := range states {
 		fmt.Printf("%d %d\n", node, state)
