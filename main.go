@@ -29,7 +29,9 @@ func main() {
 
 	for i := 0; i < 1; i++ {
 		timeStart := time.Now()
-		fitness := fitnessCalculator.CalculateFitness()
-		fmt.Printf("Trial %d: proportion of nodes still susceptible: %f (%v).\n", i, fitness, time.Now().Sub(timeStart))
+		// fitness := fitnessCalculator.CalculateFitness()
+		fitness := fitnessCalculator.CalcAndOutput()
+		fmt.Printf("Trial %d: proportion of nodes still susceptible: %f (%v).\n",
+			i, fitness, time.Now().Sub(timeStart))
 	}
 }

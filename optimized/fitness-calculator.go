@@ -83,6 +83,7 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 	return totalFitness / float32(n.numTrials)
 }
 
+// For each node with a different state, prints "<node>, <state>\n" to stdout. Finishes with a newline.
 func printDifferenceInStates(previous, current []uint8) {
 	for i := 0; i < len(previous); i++ {
 		if previous[i] != current[i] {
