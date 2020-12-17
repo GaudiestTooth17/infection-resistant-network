@@ -61,22 +61,12 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 	// run simulations
 	for i := 0; i < n.numTrials; i++ {
 		network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
-		// Set up previous state to be full of StateS so that the visualization
-		// starts with all the nodes in this state
-		previousState := make([]uint8, network.NumNodes())
-		for i := 0; i < len(previousState); i++ {
-			previousState[i] = dsnet.StateS
-		}
-		currentState := network.GetNodeStates(0)
-		printDifferenceInStates(previousState, currentState)
+		printStates(network.GetNodeStates(0))
 
 		// run simulation
-		previousState = currentState
 		for step := 0; step < n.simLength; step++ {
 			network.Step()
-			currentState = network.GetNodeStates(0)
-			printDifferenceInStates(previousState, currentState)
-			previousState = currentState
+			printStates(network.GetNodeStates(0))
 		}
 		totalFitness += rateNetwork(network)
 	}
@@ -84,11 +74,9 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 }
 
 // For each node with a different state, prints "<node>, <state>\n" to stdout. Finishes with a newline.
-func printDifferenceInStates(previous, current []uint8) {
-	for i := 0; i < len(previous); i++ {
-		if previous[i] != current[i] {
-			fmt.Printf("%d %d\n", i, current[i])
-		}
+func printStates(states []uint8) {
+	for node, state := range states {
+		fmt.Printf("%d %d\n", node, state)
 	}
 	fmt.Println()
 }
