@@ -57,22 +57,20 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 // CalcAndOutput sequentially calculates the fitness of a network
 // and prints the change in states to the screen
 func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
-	totalFitness := float32(0)
 	// run simulations
-	for i := 0; i < n.numTrials; i++ {
-		network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
-		printStates(network.GetNodeStates(0))
+	network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
+	printStates(network.GetNodeStates(0))
 
-		// run simulation
-		for step := 0; step < n.simLength; step++ {
-			network.Step()
-			printStates(network.GetNodeStates(0))
-		}
-		totalFitness += rateNetwork(network)
+	// run simulation
+	numEandI := len(n.disease.FindNodesInState(dsnet.StateE)) + len(n.disease.FindNodesInState(dsnet.StateI))
+	for numEandI > 0 {
+		network.Step()
+		printStates(network.GetNodeStates(0))
+		numEandI = len(n.disease.FindNodesInState(dsnet.StateE)) + len(n.disease.FindNodesInState(dsnet.StateI))
 	}
 
 	fmt.Println("end")
-	return totalFitness / float32(n.numTrials)
+	return rateNetwork(network) / float32(n.numTrials)
 }
 
 // For each node with a different state, prints "<node> <state>\n" to stdout. Finishes with a newline.
