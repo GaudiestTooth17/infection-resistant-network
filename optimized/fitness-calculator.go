@@ -62,11 +62,9 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 	printStates(network.GetNodeStates(0))
 
 	// run simulation
-	numEandI := len(n.disease.FindNodesInState(dsnet.StateE)) + len(n.disease.FindNodesInState(dsnet.StateI))
-	for numEandI > 0 {
+	for len(network.FindNodesInState(dsnet.StateE, 0))+len(network.FindNodesInState(dsnet.StateI, 0)) > 0 {
 		network.Step()
 		printStates(network.GetNodeStates(0))
-		numEandI = len(n.disease.FindNodesInState(dsnet.StateE)) + len(n.disease.FindNodesInState(dsnet.StateI))
 	}
 
 	fmt.Println("end")
