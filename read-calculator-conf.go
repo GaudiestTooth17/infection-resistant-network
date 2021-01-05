@@ -5,10 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"math"
 	"os"
 	"strconv"
-	"strings"
 	"unicode"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
@@ -17,6 +15,7 @@ import (
 )
 
 // readFitnessCalculator reads a text file containing a text description of a fitness calculator
+// This function is deprecated. Sim length and number of sims are now given as cmd line parameters.
 func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimized.NetworkFitnessCalculator {
 	adjacencyMatrix := readAdjacencyList(adjListFilename)
 	fitnessCalcFile, err := os.Open(fitnessCalcFilename)
@@ -70,40 +69,6 @@ func readFitnessCalculator(fitnessCalcFilename, adjListFilename string) optimize
 	}
 	fmt.Printf("num trials: %d\n", numTrials)
 	return optimized.NewNetworkFitnessCalculator(adjacencyMatrix, numTrials, simLength, disease)
-}
-
-// parseDisease parameters from line
-func parseDisease(line string) diseasednetwork.Disease {
-	fields := strings.Fields(line)
-	if len(fields) != 4 {
-		fmt.Printf("%v\n", fields)
-		panic("Expected three values for disease description!")
-	}
-
-	timeToI, err := strconv.Atoi(fields[0])
-	if err != nil {
-		panic(err)
-	} else if timeToI > math.MaxInt16 || timeToI < 0 {
-		panic("timeToI must be in the range of a 16 bit int and non-negative.")
-	}
-
-	timeToR, err := strconv.Atoi(fields[1])
-	if err != nil {
-		panic(err)
-	} else if timeToR > math.MaxInt16 || timeToR < 0 {
-		panic("timeToR must be in the range of a 16 bit int and non-negative.")
-	}
-
-	infectionProbability, err := strconv.ParseFloat(fields[2], 32)
-	if err != nil {
-		panic(err)
-	} else if infectionProbability < 0 || infectionProbability > 1.0 {
-		panic("infectionProbability must be at least 0 and at most 1.")
-	}
-
-	numberToInfectAtStart, err := strconv.Atoi(fields[3])
-	return diseasednetwork.NewBasicDisease(int16(timeToI), int16(timeToR), float32(infectionProbability),
-		diseasednetwork.NewInfectN(numberToInfectAtStart))
 }
 
 // parseInfectionStrategy parameters from line

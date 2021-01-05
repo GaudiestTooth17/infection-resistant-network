@@ -1,6 +1,0 @@
-numTrials
-simLength
-disease (timeToI timeToR infectionProbability, number-of-nodes-to-infect-at-start)
-100
-100
-4 7 .02 10

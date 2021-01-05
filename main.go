@@ -3,35 +3,57 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"time"
-
-	dsnet "github.com/GaudiestTooth17/infection-resistant-network/diseasednetwork"
 
 	"github.com/GaudiestTooth17/infection-resistant-network/optimized"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Printf("Usage: %s <startingMatrixName>\n", os.Args[0])
+	if len(os.Args) == 3 {
+		runWithVis()
+	} else if len(os.Args) == 5 {
+		runBatch()
+	} else {
+		fmt.Printf("Usage: %s <disease-file> <matrix-file> [num-sims] [sim-length]\n", os.Args[0])
 		return
 	}
-	startingMatrixName := os.Args[1]
-	// simConfName := os.Args[2]
-	// genotypeConfName := os.Args[3]
+}
 
-	// fitnessCalculator := readFitnessCalculator(simConfName, startingMatrixName)
-	network := readAdjacencyList(startingMatrixName)
-	disease := dsnet.NewBasicDisease(4, 7, .02, dsnet.NewInfectN(10))
+func runWithVis() {
+	diseaseName := os.Args[1]
+	matrixName := os.Args[2]
+	network := readAdjacencyList(matrixName)
+	// disease := dsnet.NewBasicDisease(4, 7, .02, dsnet.NewInfectN(10))
+	disease := readDisease(diseaseName)
 	fitnessCalculator := optimized.NewNetworkFitnessCalculator(network, 100, 100, disease)
-	// genotypes := readGenotypeConf(genotypeConfName)
-	// fmt.Printf("Fitness Calculator: %v\n", fitnessCalculator)
-	// fmt.Printf("Genotypes: %v\n", genotypes)
 
-	for i := 0; i < 1; i++ {
-		timeStart := time.Now()
-		// fitness := fitnessCalculator.CalculateFitness()
-		fitness := fitnessCalculator.CalcAndOutput()
-		fmt.Fprintf(os.Stderr, "Trial %d: proportion of nodes still susceptible: %f (%v).\n",
-			i, fitness, time.Now().Sub(timeStart))
+	timeStart := time.Now()
+	fitness := fitnessCalculator.CalcAndOutput()
+	fmt.Fprintf(os.Stderr, "Proportion of nodes still susceptible: %f (%v).\n",
+		fitness, time.Now().Sub(timeStart))
+}
+
+func runBatch() {
+	diseaseName := os.Args[1]
+	matrixName := os.Args[2]
+	disease := readDisease(diseaseName)
+	network := readAdjacencyList(matrixName)
+
+	numSims, err := strconv.Atoi(os.Args[3][:len(os.Args[3])-1])
+	check(err)
+	simLength, err := strconv.Atoi(os.Args[4][:len(os.Args[4])-1])
+	check(err)
+
+	fitnessCalculator := optimized.NewNetworkFitnessCalculator(network, numSims, simLength, disease)
+	timeStart := time.Now()
+	fitness := fitnessCalculator.CalculateFitness()
+	fmt.Printf("Proportion of nodes still susceptible: %f (%v).\n",
+		fitness, time.Now().Sub(timeStart))
+}
+
+func check(err error) {
+	if err != nil {
+		panic(err)
 	}
 }

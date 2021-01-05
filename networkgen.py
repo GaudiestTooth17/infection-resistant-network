@@ -75,6 +75,16 @@ def make_complete_clique_gate_graph(num_big_components, big_component_size, gate
     return master_graph
 
 
+def make_social_circles_graph(circle_size, num_circles, num_inter_circle_connections) -> nx.Graph:
+    """
+    Make a graph consisting of cliques with some number of edges between cliques
+    :param circle_size: number of nodes in each clique
+    :param num_circles: how many social circles to make
+    :param num_inter_circle_connections: The number of edges between two cliques
+    """
+    pass
+
+
 def output_graph(G: nx.Graph):
     """
     print the graph to stdout using the typical representation
