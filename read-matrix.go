@@ -12,6 +12,10 @@ import (
 )
 
 func readAdjacencyList(fileName string) diseasednetwork.Network {
+	// read a file with the first line being the number of nodes
+	// the next lines are edges with from node and to node
+	// then there may or may not be a blank line so that node coordinates can be recorded
+	// However, the coordinates are not read.
 	file, err := os.Open(fileName)
 	if err != nil {
 		panic(err)
@@ -19,7 +23,7 @@ func readAdjacencyList(fileName string) diseasednetwork.Network {
 	defer file.Close()
 	fileReader := bufio.NewReader(file)
 
-	// create network
+	// initialize network with number of nodes
 	line, err := fileReader.ReadString('\n')
 	if err != nil {
 		panic(err)
@@ -30,7 +34,7 @@ func readAdjacencyList(fileName string) diseasednetwork.Network {
 	}
 	network := diseasednetwork.NewNetwork(n)
 
-	//populate adjMatrix
+	//populate network
 	for true {
 		line, err = fileReader.ReadString('\n')
 		// exit on EOF or if the line is length 1 (or 0) (as in it is only \n)
