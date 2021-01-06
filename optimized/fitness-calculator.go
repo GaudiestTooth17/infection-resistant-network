@@ -68,7 +68,7 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 	}
 
 	fmt.Println("end")
-	return rateNetwork(network) / float32(n.numTrials)
+	return rateNetwork(network)
 }
 
 // For each node with a different state, prints "<node> <state>\n" to stdout. Finishes with a newline.
