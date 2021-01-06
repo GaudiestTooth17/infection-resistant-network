@@ -24,7 +24,6 @@ func runWithVis() {
 	diseaseName := os.Args[1]
 	matrixName := os.Args[2]
 	network := readAdjacencyList(matrixName)
-	// disease := dsnet.NewBasicDisease(4, 7, .02, dsnet.NewInfectN(10))
 	disease := readDisease(diseaseName)
 	fitnessCalculator := optimized.NewNetworkFitnessCalculator(network, 100, 100, disease)
 
@@ -40,9 +39,9 @@ func runBatch() {
 	disease := readDisease(diseaseName)
 	network := readAdjacencyList(matrixName)
 
-	numSims, err := strconv.Atoi(os.Args[3][:len(os.Args[3])-1])
+	numSims, err := strconv.Atoi(os.Args[3])
 	check(err)
-	simLength, err := strconv.Atoi(os.Args[4][:len(os.Args[4])-1])
+	simLength, err := strconv.Atoi(os.Args[4])
 	check(err)
 
 	fitnessCalculator := optimized.NewNetworkFitnessCalculator(network, numSims, simLength, disease)
