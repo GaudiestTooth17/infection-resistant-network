@@ -29,8 +29,8 @@ func runWithVis() {
 
 	timeStart := time.Now()
 	fitness := fitnessCalculator.CalcAndOutput()
-	fmt.Fprintf(os.Stderr, "Proportion of nodes still susceptible: %f (%v).\n",
-		fitness, time.Now().Sub(timeStart))
+	fmt.Fprintf(os.Stderr, "Proportion of nodes still susceptible: %f R0: %f (%v).\n",
+		fitness, fitnessCalculator.R0(), time.Now().Sub(timeStart))
 }
 
 func runBatch() {

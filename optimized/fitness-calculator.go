@@ -17,6 +17,7 @@ type NetworkFitnessCalculator struct {
 	numTrials int
 	simLength int
 	disease   diseasednetwork.Disease
+	r0        float64
 }
 
 // NewNetworkFitnessCalculator creates a NetworkFitnessCalculator with the provided values
@@ -26,15 +27,13 @@ func NewNetworkFitnessCalculator(network dsnet.Network, numTrials, simLength int
 		numTrials: numTrials,
 		simLength: simLength,
 		disease:   disease,
+		r0:        -1,
 	}
 }
 
 // CalculateFitness - Calculate how fit the parameters are as agent behaviors for a DiseasedNetwork
 func (n NetworkFitnessCalculator) CalculateFitness() float32 {
-	// consider a fitness function that rewards spreading a positive infection while penalizing spreading a negative infection
-	// fewer disconnected components is a plus, infected nodes is a minus
-	// the key is to preserve the good a network serves
-	// in the future, add ability for agents to change behavior over time
+	// TODO: add R0 calculation
 
 	trialFitnesses := make([]float32, n.numTrials)
 	fitnessChannel := make(chan FitnessData)
@@ -54,9 +53,14 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 	return totalFitness
 }
 
+// R0 of the disease that was given to the fitness calculator
+func (n NetworkFitnessCalculator) R0() float64 {
+	return n.r0
+}
+
 // CalcAndOutput sequentially calculates the fitness of a network
 // and prints the change in states to the screen
-func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
+func (n *NetworkFitnessCalculator) CalcAndOutput() float32 {
 	// run simulations
 	network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
 	printStates(network.GetNodeStates(0))
@@ -66,6 +70,7 @@ func (n NetworkFitnessCalculator) CalcAndOutput() float32 {
 		network.Step()
 		printStates(network.GetNodeStates(0))
 	}
+	n.r0 = network.R0(0)
 
 	fmt.Println("end")
 	return rateNetwork(network)

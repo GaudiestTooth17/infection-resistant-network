@@ -22,7 +22,6 @@ func (n *DiseasedNetwork) NumNodes() int {
 
 // NewDiseasedNetwork creates a new instance of DiseasedNetwork
 func NewDiseasedNetwork(diseases []Disease, underlyingNet Network) DiseasedNetwork {
-
 	net := DiseasedNetwork{
 		diseases: diseases,
 		adjMat:   underlyingNet.MakeCopy(),
@@ -58,19 +57,20 @@ func (n *DiseasedNetwork) Step() time.Duration {
 func (n *DiseasedNetwork) spreadInfection() {
 	for i, disease := range n.diseases {
 		infectiousNodes := disease.FindNodesInState(StateI)
-		atRiskGroups := make([]map[int]uint8, len(infectiousNodes))
-		groupIndex := 0
+		atRiskGroups := make(map[int]map[int]uint8, len(infectiousNodes))
 		for node := range infectiousNodes {
-			atRiskGroups[groupIndex] = n.findNeighbors(node, StateS, i)
-			groupIndex++
+			atRiskGroups[node] = n.findNeighbors(node, StateS, i)
 		}
 
-		for _, group := range atRiskGroups {
-			for node := range group {
+		for infectiousNode, group := range atRiskGroups {
+			nodesInfected := uint(0)
+			for atRiskNode := range group {
 				if rand.Float32() < disease.InfectionProbability() {
-					disease.SetState(node, StateE)
+					disease.SetState(atRiskNode, StateE)
+					nodesInfected++
 				}
 			}
+			disease.ReportInfections(infectiousNode, nodesInfected)
 		}
 	}
 }
@@ -120,4 +120,9 @@ func (n *DiseasedNetwork) GetNodeStates(diseaseNumber int) []uint8 {
 		nodeStates[node] = n.diseases[diseaseNumber].State(node)
 	}
 	return nodeStates
+}
+
+// R0 gives the R0 of the specified disease.
+func (n *DiseasedNetwork) R0(diseaseNum int) float64 {
+	return n.diseases[diseaseNum].R0()
 }

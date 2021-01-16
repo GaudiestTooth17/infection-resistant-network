@@ -27,6 +27,7 @@ type goodDisease struct {
 	infStrat             InitialInfectionStrategy
 	numNodes             int
 	numInfected          int
+	numNodesInfectedBy   []uint
 }
 
 // InfectionProbability returns the probability that in one time step a node will infect
@@ -77,6 +78,7 @@ func (d *goodDisease) NumNodes() int {
 
 func (d *goodDisease) SetNumNodes(n int) {
 	d.numNodes = n
+	d.numNodesInfectedBy = make([]uint, d.numNodes)
 }
 
 // FindNodesInState finds all the nodes in the network with the given state
@@ -129,4 +131,20 @@ func (d *goodDisease) MakeCopy() Disease {
 		infStrat:             d.infStrat,
 		numNodes:             d.numNodes,
 	}
+}
+
+func (d *goodDisease) R0() float64 {
+	numSpreaders := uint(0)
+	numInfectedBySpreaders := uint(0)
+	for _, numInfected := range d.numNodesInfectedBy {
+		if numInfected > 0 {
+			numSpreaders++
+			numInfectedBySpreaders += numInfected
+		}
+	}
+	return float64(numInfectedBySpreaders) / float64(numSpreaders)
+}
+
+func (d *goodDisease) ReportInfections(node int, numInfected uint) {
+	d.numNodesInfectedBy[node] += numInfected
 }

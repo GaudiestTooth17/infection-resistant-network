@@ -39,6 +39,8 @@ type Disease interface {
 	MakeCopy() Disease
 	updateStates()
 	Rate() float64
+	R0() float64
+	ReportInfections(node int, numInfections uint)
 }
 
 // basicDisease is a simple disease with constant values
@@ -50,6 +52,7 @@ type basicDisease struct {
 	timeInState          map[int]int16
 	infStrat             InitialInfectionStrategy
 	numNodes             int
+	numNodesInfectedBy   []uint
 }
 
 // InfectionProbability returns the probability that in one time step a node will infect
@@ -93,8 +96,12 @@ func (d *basicDisease) NumNodes() int {
 	return d.numNodes
 }
 
+// SetNumNodes MUST be called before actually using the disease. Unfortunately, because of the
+// way the structs relate to each other, it isn't possible to specify the number of nodes when
+// the disease is created.
 func (d *basicDisease) SetNumNodes(n int) {
 	d.numNodes = n
+	d.numNodesInfectedBy = make([]uint, d.numNodes)
 }
 
 // FindNodesInState finds all the nodes in the network with the given state
@@ -133,6 +140,25 @@ func (d *basicDisease) Rate() float64 {
 	// fmt.Printf("%d S, %d E, %d I, %d R\n", susceptibleNodes, infectedNodes, exposedNodes, removedNodes)
 	totalNodes := d.NumNodes()
 	return float64(susceptibleNodes) / float64(totalNodes)
+}
+
+// R0 calculates the R0 of the disease
+func (d *basicDisease) R0() float64 {
+	// fmt.Fprintf(os.Stderr, "%p\n", d)
+	numSpreaders := uint(0)
+	numInfectedBySpreaders := uint(0)
+	for _, numInfected := range d.numNodesInfectedBy {
+		if numInfected > 0 {
+			numSpreaders++
+			numInfectedBySpreaders += numInfected
+		}
+	}
+	return float64(numInfectedBySpreaders) / float64(numSpreaders)
+}
+
+func (d *basicDisease) ReportInfections(node int, numInfections uint) {
+	// fmt.Fprintf(os.Stderr, "%p\n", d)
+	d.numNodesInfectedBy[node] += numInfections
 }
 
 /*
