@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 	"time"
@@ -82,7 +83,8 @@ func check(err error) {
 	}
 }
 
-// noExt semoves the file extension from a string or does nothing if there is no file extension
+// noExt semoves the file extension from a string or does nothing if there is no file extension.
+// It also removes all the path elements leading up to the actual file.
 func noExt(str string) string {
-	return strings.Split(str, ".")[0]
+	return strings.Split(path.Base(str), ".")[0]
 }
