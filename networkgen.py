@@ -75,7 +75,8 @@ def make_complete_clique_gate_graph(num_big_components, big_component_size, gate
     return master_graph
 
 
-def make_social_circles_graph(circle_size, num_circles, num_inter_circle_connections) -> nx.Graph:
+def make_custom_caveman_graph(circle_size, num_circles, num_inter_circle_connections) -> nx.Graph:
+    # TODO: This could probably be accomplished by modifying a caveman graph
     """
     Make a graph consisting of cliques with some number of edges between cliques
     :param circle_size: number of nodes in each clique

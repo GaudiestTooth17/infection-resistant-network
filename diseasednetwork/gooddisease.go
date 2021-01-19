@@ -142,6 +142,10 @@ func (d *goodDisease) R0() float64 {
 			numInfectedBySpreaders += numInfected
 		}
 	}
+	// If no new nodes actually caught the disease, return 0 instead of NaN
+	if numSpreaders == 0 {
+		return 0
+	}
 	return float64(numInfectedBySpreaders) / float64(numSpreaders)
 }
 

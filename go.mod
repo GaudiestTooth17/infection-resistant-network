@@ -6,4 +6,5 @@ require (
 	github.com/Arafatk/glot v0.0.0-20180312013246-79d5219000f0 // indirect
 	github.com/disintegration/gift v1.2.1 // indirect
 	github.com/oakmound/oak v2.0.0+incompatible // indirect
+	gonum.org/v1/plot v0.8.1
 )

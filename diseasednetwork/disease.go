@@ -144,7 +144,6 @@ func (d *basicDisease) Rate() float64 {
 
 // R0 calculates the R0 of the disease
 func (d *basicDisease) R0() float64 {
-	// fmt.Fprintf(os.Stderr, "%p\n", d)
 	numSpreaders := uint(0)
 	numInfectedBySpreaders := uint(0)
 	for _, numInfected := range d.numNodesInfectedBy {
@@ -152,6 +151,10 @@ func (d *basicDisease) R0() float64 {
 			numSpreaders++
 			numInfectedBySpreaders += numInfected
 		}
+	}
+	// If no new nodes actually caught the disease, return 0 instead of NaN
+	if numSpreaders == 0 {
+		return 0
 	}
 	return float64(numInfectedBySpreaders) / float64(numSpreaders)
 }
