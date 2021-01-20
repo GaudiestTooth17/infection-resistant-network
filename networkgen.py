@@ -3,7 +3,7 @@
 from typing import List
 
 import networkx as nx
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import sys
 
 
@@ -75,15 +75,13 @@ def make_complete_clique_gate_graph(num_big_components, big_component_size, gate
     return master_graph
 
 
-def make_custom_caveman_graph(circle_size, num_circles, num_inter_circle_connections) -> nx.Graph:
-    # TODO: This could probably be accomplished by modifying a caveman graph
+def make_caveman_graph(num_cliques, clique_size) -> nx.Graph:
     """
     Make a graph consisting of cliques with some number of edges between cliques
-    :param circle_size: number of nodes in each clique
-    :param num_circles: how many social circles to make
-    :param num_inter_circle_connections: The number of edges between two cliques
+    :param clique_size: number of nodes in each clique
+    :param num_cliques: how many social circles to make
     """
-    pass
+    return nx.connected_caveman_graph(num_cliques, clique_size)
 
 
 def output_graph(G: nx.Graph):
@@ -102,4 +100,5 @@ def output_graph(G: nx.Graph):
 
 
 if __name__ == '__main__':
+    # output_graph(make_caveman_graph(50, 10))
     main(sys.argv)
