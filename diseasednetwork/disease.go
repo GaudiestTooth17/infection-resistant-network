@@ -41,6 +41,7 @@ type Disease interface {
 	Rate() float64
 	R0() float64
 	ReportInfections(node int, numInfections uint)
+	endStep()
 }
 
 // basicDisease is a simple disease with constant values
@@ -159,22 +160,15 @@ func (d *basicDisease) R0() float64 {
 	return float64(numInfectedBySpreaders) / float64(numSpreaders)
 }
 
-func (d *basicDisease) ReportInfections(node int, numInfections uint) {
-	// fmt.Fprintf(os.Stderr, "%p\n", d)
-	d.numNodesInfectedBy[node] += numInfections
+// endStep should be called at the end of the Step method in DiseasedNetwork
+// so that the disease can clean up its counting mechanisms.
+func (d *basicDisease) endStep() {
+	d.numNodesInfectedBy = make([]uint, d.numNodes)
 }
 
-/*
-type basicDisease struct {
-	timeToI              int16
-	timeToR              int16
-	infectionProbability float32
-	nodeState            map[int]uint8
-	timeInState          map[int]int16
-	infStrat             InitialInfectionStrategy
-	numNodes             int
+func (d *basicDisease) ReportInfections(node int, numInfections uint) {
+	d.numNodesInfectedBy[node] += numInfections
 }
-*/
 
 func (d *basicDisease) MakeCopy() Disease {
 	nodeState := make(map[int]uint8)

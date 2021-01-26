@@ -11,8 +11,10 @@ type Void struct{}
 // DiseasedNetwork represents a dynamic network with a disease that tries to adapt to slow
 // the spread of the disease. The bad disease should be put in slot 0.
 type DiseasedNetwork struct {
-	diseases []Disease
-	adjMat   Network
+	diseases   []Disease
+	adjMat     Network
+	stepNum    uint
+	PlotMakers []PlotMaker
 }
 
 // NumNodes returns the number of nodes in a network
@@ -21,10 +23,12 @@ func (n *DiseasedNetwork) NumNodes() int {
 }
 
 // NewDiseasedNetwork creates a new instance of DiseasedNetwork
-func NewDiseasedNetwork(diseases []Disease, underlyingNet Network) DiseasedNetwork {
+func NewDiseasedNetwork(underlyingNet *Network, diseases []Disease, plotMakers []PlotMaker) DiseasedNetwork {
 	net := DiseasedNetwork{
-		diseases: diseases,
-		adjMat:   underlyingNet.MakeCopy(),
+		diseases:   diseases,
+		adjMat:     underlyingNet.MakeCopy(),
+		stepNum:    0,
+		PlotMakers: plotMakers,
 	}
 
 	for _, disease := range net.diseases {
@@ -49,6 +53,15 @@ func (n *DiseasedNetwork) Step() time.Duration {
 			dis.IncTimeInState(node)
 		}
 	}
+	// let the plotMakers measure the network
+	for _, plotMaker := range n.PlotMakers {
+		plotMaker.feedInformation(n)
+	}
+	// let the diseases reset their counting
+	for _, dis := range n.diseases {
+		dis.endStep()
+	}
+	n.stepNum++
 	return time.Now().Sub(stepStart)
 }
 

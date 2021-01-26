@@ -40,7 +40,8 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 	trialFitnesses := make([]float32, n.numTrials)
 	fitnessChannel := make(chan FitnessData)
 	for trial := 0; trial < n.numTrials; trial++ {
-		network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
+		network := dsnet.NewDiseasedNetwork(&n.network,
+			[]dsnet.Disease{n.disease.MakeCopy()}, []dsnet.PlotMaker{})
 		go calcAsync(fitnessChannel, trial, network, n.simLength)
 	}
 	for i := 0; i < n.numTrials; i++ {
@@ -58,15 +59,17 @@ func (n NetworkFitnessCalculator) CalculateFitness() float32 {
 // GraphAverageR0 runs a batch of simulations and then graphs R0 at each of the steps.
 // It returns the average of all entries in allR0s.
 func (n NetworkFitnessCalculator) GraphAverageR0(plotName string) float64 {
-	allR0s := make([][]float64, n.numTrials)
+	allR0s := make([]plotter.XYs, n.numTrials)
 	r0Channel := make(chan R0Data)
 	for trial := 0; trial < n.numTrials; trial++ {
-		network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
+		network := dsnet.NewDiseasedNetwork(&n.network,
+			[]dsnet.Disease{n.disease.MakeCopy()},
+			[]dsnet.PlotMaker{dsnet.NewR0Plotter("r0", n.simLength)})
 		go r0Async(r0Channel, trial, network, n.simLength)
 	}
 	for i := 0; i < n.numTrials; i++ {
 		r0data := <-r0Channel
-		allR0s[r0data.trialNumber] = r0data.r0s
+		allR0s[r0data.trialNumber] = r0data.plotPoints
 	}
 
 	// TODO: make graph show interquartile ranges
@@ -83,7 +86,7 @@ func (n NetworkFitnessCalculator) GraphAverageR0(plotName string) float64 {
 		// calculate average R0
 		avgR0 := float64(0)
 		for i := 0; i < n.numTrials; i++ {
-			avgR0 += allR0s[i][j] / float64(n.numTrials)
+			avgR0 += allR0s[i][j].Y / float64(n.numTrials)
 		}
 		// add average R0 to points
 		points[j].X = float64(j)
@@ -91,12 +94,20 @@ func (n NetworkFitnessCalculator) GraphAverageR0(plotName string) float64 {
 	}
 
 	// add the points to the plot and save the plot
-	err = plotutil.AddLinePoints(p, plotName, points)
+	err = plotutil.AddLines(p, plotName, points)
 	check(err)
 	err = p.Save(8*vg.Inch, 8*vg.Inch, plotName+".png")
 	check(err)
 
-	return sum(mapFunc(func(xy plotter.XY) float64 { return xy.Y }, points)) / float64(len(points))
+	nonZeroEntries := float64(0)
+	avgR0 := float64(0)
+	for _, point := range points {
+		if point.Y > 0 {
+			nonZeroEntries++
+			avgR0 += point.Y
+		}
+	}
+	return avgR0 / nonZeroEntries
 }
 
 // R0 of the disease that was given to the fitness calculator
@@ -108,7 +119,8 @@ func (n NetworkFitnessCalculator) R0() float64 {
 // and prints the change in states to the screen
 func (n *NetworkFitnessCalculator) CalcAndOutput() float32 {
 	// run simulations
-	network := dsnet.NewDiseasedNetwork([]dsnet.Disease{n.disease.MakeCopy()}, n.network)
+	network := dsnet.NewDiseasedNetwork(&n.network,
+		[]dsnet.Disease{n.disease.MakeCopy()}, []dsnet.PlotMaker{})
 	printStates(network.GetNodeStates(0))
 
 	// run simulation
@@ -159,40 +171,24 @@ func rateNetwork(network diseasednetwork.DiseasedNetwork) float32 {
 // R0Data is used to send data about R0 over a channel
 type R0Data struct {
 	trialNumber int
-	r0s         []float64
+	plotPoints  plotter.XYs
 	elapsedTime time.Duration
 }
 
 func r0Async(outChan chan<- R0Data, trialNumber int, network dsnet.DiseasedNetwork, numSteps int) {
 	duration := time.Duration(0)
-	r0s := make([]float64, numSteps)
 	for i := 0; i < numSteps; i++ {
 		duration += network.Step()
-		r0s[i] = network.R0(0)
 	}
-	outChan <- R0Data{trialNumber: trialNumber, r0s: r0s, elapsedTime: duration}
+	// Watch out! This assumes that the r0 PlotMaker is the first in the slice.
+	outChan <- R0Data{trialNumber: trialNumber, plotPoints: network.PlotMakers[0].Points(),
+		elapsedTime: duration}
 }
 
 // genotypeToAgentBehavior converts a Float32Genotype to an AgentBehavior
 func genotypeToAgentBehavior(genotype evolution.Float32Genotype) dynamicnet.AgentBehavior {
 	return dynamicnet.NewSimpleBehavior(int(genotype.Get(0)), int(genotype.Get(1)),
 		genotype.Get(2), genotype.Get(3))
-}
-
-func sum(floats []float64) float64 {
-	partialSum := float64(0)
-	for _, f := range floats {
-		partialSum += f
-	}
-	return partialSum
-}
-
-func mapFunc(fn func(plotter.XY) float64, xys plotter.XYs) []float64 {
-	floats := make([]float64, len(xys))
-	for i, xy := range xys {
-		floats[i] = fn(xy)
-	}
-	return floats
 }
 
 func check(err error) {

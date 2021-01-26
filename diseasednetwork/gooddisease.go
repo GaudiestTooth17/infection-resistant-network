@@ -149,6 +149,10 @@ func (d *goodDisease) R0() float64 {
 	return float64(numInfectedBySpreaders) / float64(numSpreaders)
 }
 
+func (d *goodDisease) endStep() {
+	d.numNodesInfectedBy = make([]uint, d.numNodes)
+}
+
 func (d *goodDisease) ReportInfections(node int, numInfected uint) {
 	d.numNodesInfectedBy[node] += numInfected
 }
