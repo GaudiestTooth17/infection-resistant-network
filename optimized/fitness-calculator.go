@@ -124,11 +124,17 @@ func (n *NetworkFitnessCalculator) CalcAndOutput() float32 {
 	printStates(network.GetNodeStates(0))
 
 	// run simulation
+	sumR0 := float64(0)
+	numInfectiousSteps := float64(0)
 	for len(network.FindNodesInState(dsnet.StateE, 0))+len(network.FindNodesInState(dsnet.StateI, 0)) > 0 {
-		network.Step()
+		_, r0 := network.Step()
+		if r0 > 0 {
+			sumR0 += r0
+			numInfectiousSteps++
+		}
 		printStates(network.GetNodeStates(0))
 	}
-	n.r0 = network.R0(0)
+	n.r0 = sumR0 / numInfectiousSteps
 
 	fmt.Println("end")
 	return rateNetwork(network)
@@ -152,7 +158,8 @@ type FitnessData struct {
 func calcAsync(outChan chan<- FitnessData, trialNumber int, network dsnet.DiseasedNetwork, numSteps int) {
 	totalDuration := time.Duration(0)
 	for i := 0; i < numSteps; i++ {
-		totalDuration += network.Step()
+		duration, _ := network.Step()
+		totalDuration += duration
 	}
 	fitness := rateNetwork(network)
 	outChan <- FitnessData{trialNumber: trialNumber, fitness: fitness, elapsedTime: totalDuration}
@@ -178,7 +185,8 @@ type R0Data struct {
 func r0Async(outChan chan<- R0Data, trialNumber int, network dsnet.DiseasedNetwork, numSteps int) {
 	duration := time.Duration(0)
 	for i := 0; i < numSteps; i++ {
-		duration += network.Step()
+		d, _ := network.Step()
+		duration += d
 	}
 	// Watch out! This assumes that the r0 PlotMaker is the first in the slice.
 	outChan <- R0Data{trialNumber: trialNumber, plotPoints: network.PlotMakers[0].Points(),

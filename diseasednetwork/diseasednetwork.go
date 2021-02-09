@@ -44,7 +44,7 @@ func NewDiseasedNetwork(underlyingNet *Network, diseases []Disease, plotMakers [
 }
 
 // Step through one time step
-func (n *DiseasedNetwork) Step() time.Duration {
+func (n *DiseasedNetwork) Step() (time.Duration, float64) {
 	stepStart := time.Now()
 	n.spreadInfection()
 	n.updateStates()
@@ -58,11 +58,12 @@ func (n *DiseasedNetwork) Step() time.Duration {
 		plotMaker.feedInformation(n)
 	}
 	// let the diseases reset their counting
+	r0 := n.diseases[0].R0()
 	for _, dis := range n.diseases {
 		dis.endStep()
 	}
 	n.stepNum++
-	return time.Now().Sub(stepStart)
+	return time.Now().Sub(stepStart), r0
 }
 
 // spreadInfection of all the diseases by finding the infectious nodes, the nodes they could infect,

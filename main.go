@@ -32,9 +32,9 @@ func runWithVis() {
 	fitnessCalculator := optimized.NewNetworkFitnessCalculator(network, 100, 100, disease)
 
 	timeStart := time.Now()
-	fitness := fitnessCalculator.CalcAndOutput()
-	fmt.Fprintf(os.Stderr, "Proportion of nodes still susceptible: %f R0: %f (%v).\n",
-		fitness, fitnessCalculator.R0(), time.Now().Sub(timeStart))
+	fitnessCalculator.CalcAndOutput()
+	fmt.Fprintf(os.Stderr, "R0: %f (%v).\n",
+		fitnessCalculator.R0(), time.Now().Sub(timeStart))
 }
 
 // runBatch runs a batch of simulations and reports the average number of nodes
